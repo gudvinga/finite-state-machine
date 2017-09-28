@@ -8,6 +8,7 @@ class FSM {
         this.config = config;
         this.state = config.initial;
         this.stack = [];
+        this.step = 0;
     }
 
     /**
@@ -28,7 +29,7 @@ class FSM {
             this.state = state;
         }
         else {
-            throw new Error ('The state is undefined');
+            throw new Error ('The state is not exist');
         }
         return this.state;      
     }
@@ -39,16 +40,22 @@ class FSM {
      */
     trigger(event) {
         var stateTmp = this.state;
-        this.stack.push(stateTmp);
-        this.state = this.config.states[stateTmp].transitions[event];
-        return this.state;
+        if (event in this.config.states[stateTmp].transitions) {
+            this.stack.push(stateTmp);
+            this.state = this.config.states[stateTmp].transitions[event];
+            return this.state;
+        }
+        else {
+            throw new Error ('The event is not exist')
+        }
+
     }
 
     /**
      * Resets FSM state to initial.
      */
     reset() {
-        this.stack.push(this.state)
+        this.stack.push(this.state);
         this.state = this.config.initial;
         return this;
     }
@@ -59,21 +66,46 @@ class FSM {
      * @param event
      * @returns {Array}
      */
-    getStates(event) {}
+    getStates(event) {
+        if(typeof(event) === 'undefined') {
+            return this.config.states;
+        }
+    }
 
     /**
      * Goes back to previous state.
      * Returns false if undo is not available.
      * @returns {Boolean}
      */
-    undo() {}
+    undo() {
+        if (this.stack.length === 0) return false;
+        if(this.stack[this.stack.length - 1]) {
+            this.changeState(this.stack[this.stack.length - 1]);
+            this.step++;
+            return true;
+        }
+        else {
+            return false;
+        }
+        
+    }
 
     /**
      * Goes redo to state.
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        if (this.stack.length === 0) return false;
+        if(this.stack[this.stack.length - this.step]) {
+            this.changeState(this.stack[this.stack.length - this.step]);
+            this.step--;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
     /**
      * Clears transition history
@@ -115,8 +147,7 @@ const config = {
 fsm = new FSM(config);
 console.log(fsm.changeState('busy'));
 console.log(fsm.trigger('get_hungry'));
-console.log(fsm.reset());
-console.log(fsm);
+console.log(fsm.undo());
 
 module.exports = FSM;
 

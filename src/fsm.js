@@ -37,13 +37,20 @@ class FSM {
      * Changes state according to event transition rules.
      * @param event
      */
-    trigger(event) {}
+    trigger(event) {
+        var stateTmp = this.state;
+        this.stack.push(stateTmp);
+        this.state = this.config.states[stateTmp].transitions[event];
+        return this.state;
+    }
 
     /**
      * Resets FSM state to initial.
      */
     reset() {
-        this.state = 'normal';
+        this.stack.push(this.state)
+        this.state = this.config.initial;
+        return this;
     }
 
     /**
@@ -106,9 +113,10 @@ const config = {
 
 
 fsm = new FSM(config);
+console.log(fsm.changeState('busy'));
+console.log(fsm.trigger('get_hungry'));
+console.log(fsm.reset());
 console.log(fsm);
-console.log(fsm.stack);
-console.log(fsm.changeState('hungry'));
 
 module.exports = FSM;
 

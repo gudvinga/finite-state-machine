@@ -3,20 +3,36 @@ class FSM {
      * Creates new FSM instance.
      * @param config
      */
-    constructor(config) {}
+    constructor(config) {
+        if (!config) throw new Error ('Error! The config is undefinite')
+        this.config = config;
+        this.state = config.initial;
+        this.stack = [];
+    }
 
     /**
      * Returns active state.
      * @returns {String}
      */
-    getState() {}
+    getState() {
+        return this.state;
+    }
 
     /**
      * Goes to specified state.
      * @param state
      */
-    changeState(state) {}
-
+    changeState(state) {
+        if (state in config.states) {
+            this.stack.push(this.state);
+            this.state = state;
+        }
+        else {
+            throw new Error ('The state is undefined');
+        }
+        return this.state;      
+    }
+    
     /**
      * Changes state according to event transition rules.
      * @param event
@@ -26,7 +42,9 @@ class FSM {
     /**
      * Resets FSM state to initial.
      */
-    reset() {}
+    reset() {
+        this.state = 'normal';
+    }
 
     /**
      * Returns an array of states for which there are specified event transition rules.
@@ -53,8 +71,44 @@ class FSM {
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        this.stack = [];
+    }
 }
+
+const config = {
+    initial: 'normal',
+    states: {
+        normal: {
+            transitions: {
+                study: 'busy',
+            }
+        },
+        busy: {
+            transitions: {
+                get_tired: 'sleeping',
+                get_hungry: 'hungry',
+            }
+        },
+        hungry: {
+            transitions: {
+                eat: 'normal'
+            },
+        },
+        sleeping: {
+            transitions: {
+                get_hungry: 'hungry',
+                get_up: 'normal',
+            },
+        },
+    }
+};
+
+
+fsm = new FSM(config);
+console.log(fsm);
+console.log(fsm.stack);
+console.log(fsm.changeState('hungry'));
 
 module.exports = FSM;
 

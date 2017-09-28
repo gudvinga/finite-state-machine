@@ -27,6 +27,7 @@ class FSM {
         if (state in config.states) {
             this.stack.push(this.state);
             this.state = state;
+            this.step = 0;
         }
         else {
             throw new Error ('The state is not exist');
@@ -43,6 +44,7 @@ class FSM {
         if (event in this.config.states[stateTmp].transitions) {
             this.stack.push(stateTmp);
             this.state = this.config.states[stateTmp].transitions[event];
+            this.step = 0;
             return this.state;
         }
         else {
@@ -81,13 +83,13 @@ class FSM {
         if (this.stack.length === 0) return false;
         if(this.stack[this.stack.length - 1]) {
             this.changeState(this.stack[this.stack.length - 1]);
+            // this.stack.pop();
             this.step++;
             return true;
         }
         else {
             return false;
         }
-        
     }
 
     /**
@@ -99,6 +101,7 @@ class FSM {
         if (this.stack.length === 0) return false;
         if(this.stack[this.stack.length - this.step]) {
             this.changeState(this.stack[this.stack.length - this.step]);
+            this.stack.pop();
             this.step--;
             return true;
         }
@@ -144,10 +147,11 @@ const config = {
 };
 
 
-fsm = new FSM(config);
-console.log(fsm.changeState('busy'));
-console.log(fsm.trigger('get_hungry'));
-console.log(fsm.undo());
+student = new FSM(config);
+console.log(student);
+student.trigger('study');
+console.log(student.undo());
+// console.log(student);
 
 module.exports = FSM;
 
